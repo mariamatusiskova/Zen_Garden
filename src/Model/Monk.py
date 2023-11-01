@@ -16,16 +16,16 @@ class Monk:
 
     def rndPosition(self, row_size: int, col_size: int):
         # down and up
-        if self.direction == 0b00 or self.direction == 0b11:
-            pos = random.randint(0, row_size)
+        if int(self.direction, 2) == 0b00 or int(self.direction, 2) == 0b11:
+            pos = random.randint(0, col_size - 1)
             pos_bits = bin(pos)[2:].zfill(2)
             print(f'pos: {pos_bits}')
-            return pos
+            return pos_bits
         else:
-            pos = random.randint(0, col_size)
+            pos = random.randint(0, row_size - 1)
             pos_bits = bin(pos)[2:].zfill(2)
             print(f'pos: {pos_bits}')
-            return pos
+            return pos_bits
 
     # def rndTurn(self):
     #     # left - 0, right - 1

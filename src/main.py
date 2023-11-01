@@ -1,10 +1,12 @@
+from src.Controller.Raking import Raking
 from src.View.Input import Input
 
 
 def main():
     input = Input()
     row_num, col_num, garden_matrix = input.openAndProccessFile()
-    # way = Way(row_num, col_num, garden_matrix)
+    raking = Raking(row_num, col_num, garden_matrix)
+    raking.work()
 
 
 
