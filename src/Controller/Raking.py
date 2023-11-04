@@ -211,7 +211,6 @@ class Raking:
         direction = int(monk.direction, 2)
         if direction == 0b00 or direction == 0b11:
             isRock, pos_x, pos_y = self.isRocksInTurnY(pos_x, pos_y)
-            pos_x, pos_y = self.swap(pos_x, pos_y)
             if isRock == "1":
                 # Change direction to left or right
                 direction = "10" if turn == 0b0 else "01"
@@ -257,7 +256,6 @@ class Raking:
             move_pos = initial_pos
         elif change_y:
             move_pos = current_pos
-            move_pos, position = self.swap(move_pos, position)
             change_x = False
             change_y = False
 
@@ -268,8 +266,9 @@ class Raking:
         move_num += 1
         initial_pos = val
         current_pos = 0
+        position = int(monk.position, 2)
 
-        return monk, initial_pos, current_pos, move_num
+        return monk, initial_pos, current_pos, move_num, position
 
     def isDown(self, direction: int) -> bool:
         return direction == 0b00
@@ -290,10 +289,10 @@ class Raking:
                initial_pos_right: int, initial_pos_left: int, current_pos: int, change_y: bool, change_x: bool,
                move_num: int):
 
+        position = int(monk.position, 2)
         check_list = True
         while check_list:
             direction = int(monk.direction, 2)
-            position = int(monk.position, 2)
             # down
             if self.isDown(direction):
                 monk_pos, change_x, change_y, position, initial_pos_down = \
@@ -303,7 +302,7 @@ class Raking:
 
                 if self.isIterEnded(monk_pos, self.row_val):
                     try:
-                        monk, initial_pos_down, current_pos, move_num = \
+                        monk, initial_pos_down, current_pos, move_num, position = \
                             self.goToNextMonk(gen_list_iterator, move_num, 0, position)
                         continue
                     except StopIteration:
@@ -318,7 +317,7 @@ class Raking:
 
                 if self.isIterEnded(iter_pos, 0):
                     try:
-                        monk, initial_pos_up, current_pos, move_num = \
+                        monk, initial_pos_up, current_pos, move_num, position = \
                             self.goToNextMonk(gen_list_iterator, move_num, self.row_val - 1, position)
                         continue
                     except StopIteration:
@@ -333,7 +332,7 @@ class Raking:
 
                 if self.isIterEnded(monk_pos, self.col_val):
                     try:
-                        monk, initial_pos_right, current_pos, move_num = \
+                        monk, initial_pos_right, current_pos, move_num, position = \
                             self.goToNextMonk(gen_list_iterator, move_num, 0, position)
                         continue
                     except StopIteration:
@@ -348,7 +347,7 @@ class Raking:
 
                 if self.isIterEnded(iter_pos, 0):
                     try:
-                        monk, initial_pos_left, current_pos, move_num = \
+                        monk, initial_pos_left, current_pos, move_num, position = \
                             self.goToNextMonk(gen_list_iterator, move_num, self.col_val - 1, position)
                         continue
                     except StopIteration:
