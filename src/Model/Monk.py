@@ -27,10 +27,10 @@ class Monk:
             print(f'pos: {pos_bits}')
             return pos_bits
 
-    # def rndTurn(self):
-    #     # left - 0, right - 1
-    #     side = random.randint(0, 1)
-    #     side_bit = bin(side)
-    #     return side_bit
+    def rndTurn(self):
+        # left - 0, right - 1
+        side = random.randint(0, 1)
+        side_bit = bin(side)
+        return side_bit
 
 
