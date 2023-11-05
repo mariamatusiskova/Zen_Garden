@@ -8,7 +8,7 @@ class Way:
     def __init__(self, row_val: int, col_val: int, garden_matrix):
         self.fitness = 0
         self.gen_len = random.randint(5, 50)
-        # ???
+        self.game_over = False
         self.row_val = row_val
         self.col_val = col_val
         self.gen_list = self.generateGens()
