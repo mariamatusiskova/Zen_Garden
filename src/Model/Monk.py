@@ -11,7 +11,6 @@ class Monk:
         # 00 - down, 01 - right, 10 - left, 11 - up
         movement = random.randint(0, 3)
         movement_bits = bin(movement)[2:].zfill(2)
-        print(f'movement: {movement_bits}')
         return movement_bits
 
     def rndPosition(self, row_size: int, col_size: int):
@@ -19,12 +18,10 @@ class Monk:
         if int(self.direction, 2) == 0b00 or int(self.direction, 2) == 0b11:
             pos = random.randint(0, col_size - 1)
             pos_bits = bin(pos)[2:].zfill(2)
-            print(f'pos: {pos_bits}')
             return pos_bits
         else:
             pos = random.randint(0, row_size - 1)
             pos_bits = bin(pos)[2:].zfill(2)
-            print(f'pos: {pos_bits}')
             return pos_bits
 
     def rndTurn(self):

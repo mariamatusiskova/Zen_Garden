@@ -441,7 +441,7 @@ class Raking:
 
     def work(self):
         move_num = 1
-        way = Way(self.row_val, self.col_val, self.garden_matrix)
+        way = Way(self.row_val, self.col_val)
         initial_pos_down = 0
         initial_pos_right = 0
         initial_pos_up = self.row_val - 1

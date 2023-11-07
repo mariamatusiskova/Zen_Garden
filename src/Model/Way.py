@@ -4,8 +4,9 @@ from random import random
 from src.Model.Monk import Monk
 import random
 
+
 class Way:
-    def __init__(self, row_val: int, col_val: int, garden_matrix):
+    def __init__(self, row_val: int, col_val: int):
         self.fitness = 0
         self.gen_len = random.randint(5, 50)
         self.game_over = False
@@ -20,14 +21,5 @@ class Way:
 
         return monk_list
 
-    # def calculateFitness(self):
-    #     self.fitness = 0
-    #     for idx in self.gen_len:
-    #         #if gen??
-    #         self.fitness += 1
-    #
-    #     getBestFitness()
-
-
-
+    def rake_garden(self):
 
