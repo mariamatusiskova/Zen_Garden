@@ -118,7 +118,7 @@ class Population:
         first_best_fitness, second_best_fitness = self.getFirstAndSecondBestFitness()
         if first_best_fitness != -1 and second_best_fitness != -1:
             best_individuals = [individual for individual in self.population if individual.fitness in [first_best_fitness, second_best_fitness]]
-            new_population.extend([best_individuals])
+            new_population.extend(best_individuals)
 
 
         # tournament
