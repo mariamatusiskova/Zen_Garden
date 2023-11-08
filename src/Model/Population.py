@@ -1,8 +1,12 @@
 # Source: https://medium.com/p/e396e98d8bf3 (for understanding genetic algorithm and using the base implementation)
 import sys
 
+import numpy as np
+
 from src.Controller.Raking import Raking
 import random
+
+from src.Model.Way import Way
 
 
 class Population:
@@ -12,13 +16,17 @@ class Population:
         self.size = 40
         self.row_val = row_val
         self.col_val = col_val
+        self.garden_matrix = garden_matrix
         self.population = self.initializePopulation()
         self.generation_count = 0
         self.best_fitness = 0
-        self.garden_matrix = garden_matrix
 
     def initializePopulation(self) -> list:
-        return [Raking(self.row_val, self.col_val, self.garden_matrix) for _ in range(self.size)]
+        return [Raking(self.row_val, self.col_val, self.garden_matrix, Way(self.row_val, self.col_val)) for _ in range(self.size)]
+
+    def evaluatePopulation(self):
+        for individual in self.population:
+            individual.work()
 
     def isGO(self, x) -> bool:
         return x.game_over
@@ -26,11 +34,21 @@ class Population:
     def filterGO(self):
         self.population = [individual for individual in self.population if not self.isGO(individual)]
 
+    def isSolution(self, x) -> bool:
+        return x.solution
+
+    def findSolution(self) -> bool:
+        for individual in self.population:
+            if self.isSolution(individual):
+                return True
+
     def getFirstAndSecondBestFitness(self) -> (int, int):
         if len(self.population) >= 2:
             first_best_fitness = self.population[0].fitness
             second_best_fitness = self.population[1].fitness
-        return first_best_fitness, second_best_fitness
+            return first_best_fitness, second_best_fitness
+        else:
+            return -1, -1
 
     def tournament(self, tour_participants_size: int, num_selections: int) -> list:
         selected_individuals = []
@@ -43,28 +61,48 @@ class Population:
         return selected_individuals
 
     def oneToOneCrossover(self, parent_one, parent_two):
-        crossover_point = random.randint(1, len(parent_one) - 1)
 
-        child_one = parent_one.crossover_with(parent_two)
-        child_two = parent_two.crossover_with(parent_one)
-        child1_way = parent1.way[:crossover_point] + parent2.way[crossover_point:]
-        child2_way = parent2.way[:crossover_point] + parent1.way[crossover_point:]
+        garden_one = parent_one.garden_matrix
+        garden_two = parent_two.garden_matrix
 
-        return child_one, child_two
+        # if one of the parents doesn't have a chromosome return parent not a new child
+        if len(garden_one) <= 1 or len(garden_two) <= 1:
+            return parent_one, parent_two
 
+        # random crossover point
+        crossover_point = random.randint(1, len(garden_one) - 1)
+        child_one = garden_one[:crossover_point] + garden_two[crossover_point:]
+        child_two = garden_two[:crossover_point] + garden_one[crossover_point:]
 
+        # Create new children with new gardens
+        new_child_one = Raking(self.row_val, self.col_val, child_one, Way(self.row_val, self.col_val))
+        new_child_two = Raking(self.row_val, self.col_val, child_two, Way(self.row_val, self.col_val))
 
-    # START
-    # Generate the initial population
-    # Compute fitness
-    # REPEAT
-    #       Selection
-    #       Crossover
-    #       Compute fitness
-    # UNTIL I have solution or run through a lot of gens
-    # STOP
+        return new_child_one, new_child_two
 
-    def evolution(self):
+    def isChance(self, chance: int, mutation_probability: int) -> bool:
+        return chance <= mutation_probability
+
+    def generatePercentage(self) -> int:
+        return random.randint(1, 100)
+
+    def mutate_individual(self, individual, mutation_probability: int):
+        for gen in individual.way.gen_list:
+            chance = self.generatePercentage()
+            if self.isChance(chance, mutation_probability):
+                gen.mutate(mutation_probability, self.row_val, self.col_val)
+
+        return individual
+
+    def mutation(self, new_population: list):
+        mutation_probability = 5
+        for i in range(len(new_population)):
+            chance = self.generatePercentage()
+            if self.isChance(chance, mutation_probability):
+                # mutated individual
+                new_population[i] = self.mutate_individual(new_population[i], mutation_probability)
+
+    def evolution(self) -> list:
         # rm game_over individuals
         self.filterGO()
 
@@ -73,8 +111,15 @@ class Population:
         self.population = sorted(self.population, key=lambda individual: individual.fitness, reverse=True)
         self.population = self.population[:rm_worst_fitness]
 
-        # get best fitness
+        # list of new population
+        new_population = []
+
+        # get the best fitness and add them to new_ population
         first_best_fitness, second_best_fitness = self.getFirstAndSecondBestFitness()
+        if first_best_fitness != -1 and second_best_fitness != -1:
+            best_individuals = [individual for individual in self.population if individual.fitness in [first_best_fitness, second_best_fitness]]
+            new_population.extend([best_individuals])
+
 
         # tournament
         tour_participants_size = 3
@@ -82,66 +127,12 @@ class Population:
         tournaments_individuals = self.tournament(tour_participants_size, num_selections)
 
         # crossover
-            # Divide individuals into two groups: one-to-one and random
-        one_to_one_group = tournaments_individuals[:num_selections // 2]
-        random_group = tournaments_individuals[num_selections // 2:]
-
-        for i in range(0, one_to_one_group, 2):
-            if i + 1 < one_to_one_group:
+        for i in range(0, num_selections, 2):
+            if i + 1 < num_selections:
                 child1, child2 = self.oneToOneCrossover(tournaments_individuals[i], tournaments_individuals[i + 1])
                 new_population.extend([child1, child2])
 
-        self.oneToOneCrossover(tournaments_individuals)
+        # mutation
+        self.mutation(new_population)
 
-
-        # najlepsie dve nechavam, nic s nimi nerobim idu dalej
-        # zvysnich 24 dat do 12 parov a krizit
-        # alebo spravit 12 turnajov a spravit 4 deti vitazov
-        # mutacie --> mutation(20 deti) --> return 6 zmutovanych deti --> nahodne vybera, ktore chromozomy mutuju, nahodne vyberiem ako mutuju (sanca 4% percent)
-
-
-        pass
-
-    # def getFirstFittest(self) -> Way:
-    #     max_fit = sys.maxint
-    #     max_fit_idx = 0
-    #
-    #     for idx, road in enumerate(self.ways):
-    #         if max_fit <= road.fitness:
-    #             max_fit = road.fitness
-    #             max_fit_idx = idx
-    #
-    #     self.best_fitness = self.ways[max_fit_idx].fitness
-    #     return self.ways[max_fit_idx]
-    #
-    #
-    # def getSecondFittest(self) -> Way:
-    #     max_first_fit = 0
-    #     max_second_fit = 0
-    #
-    #     for idx, road in enumerate(self.ways):
-    #         if road.fitness > self.ways[max_first_fit].fitness:
-    #             max_second_fit = max_first_fit
-    #             max_first_fit = idx
-    #         elif road.fitness > self.ways[max_second_fit].fitness:
-    #             max_second_fit = idx
-    #
-    #     return self.ways[max_second_fit]
-    #
-    #
-    # def getFragileFittestIdx(self) -> int:
-    #     min_fit = sys.maxsize
-    #     min_fit_idx = 0
-    #
-    #     for idx, way in enumerate(self.ways):
-    #         if min_fit >= way.fitness:
-    #             min_fit = way.fitness
-    #             min_fit_idx = 0
-    #
-    #     return min_fit_idx
-
-    # def getFitness(self):
-    #     for way in self.ways:
-    #         way.calculateFitness()
-    #
-    #     getBestFitness()
+        return new_population

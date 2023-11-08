@@ -1,2 +1,0 @@
-class Crossover:
-    pass

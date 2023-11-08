@@ -6,10 +6,14 @@ from src.Model.Way import Way
 
 class Raking:
 
-    def __init__(self, row_val: int, col_val: int, garden_matrix: list):
+    def __init__(self, row_val: int, col_val: int, garden_matrix: list, way: Way):
         self.garden_matrix = garden_matrix
         self.row_val = row_val
         self.col_val = col_val
+        self.game_over = False
+        self.solution = False
+        self.fitness = 0
+        self.way = way
 
     def checkGameOver(self, pos_x: int, pos_y: int) -> bool:
         return pos_x == -1 and pos_y == -1
@@ -28,14 +32,14 @@ class Raking:
         return x + 1 < self.row_val and self.garden_matrix[x + 1][y] != 0 and self.garden_matrix[x + 1][y] != move_num and self.garden_matrix[x + 1][y] != 'K' and self.garden_matrix[x][y] == 0
 
     def moveDown(self, monk_pos: int, position: int, monk: Monk, move_num: int, current_pos: int, change_y: bool,
-                 initial_pos_down: int, way: Way) -> (int, int, bool, int, int):
+                 initial_pos_down: int) -> (int, int, bool, int, int):
         while monk_pos <= self.row_val:
             if self.moveForwardDown(monk_pos, position, move_num):
                 self.garden_matrix[monk_pos][position] = move_num
                 monk_pos += 1
             elif self.isRockDown(monk_pos, position, move_num):
                 self.garden_matrix[monk_pos][position] = move_num
-                current_pos, position = self.rock(monk_pos, position, monk, way)
+                current_pos, position = self.rock(monk_pos, position, monk)
 
                 if self.checkGameOver(current_pos, position):
                     return -1, -1, False, -1, -1
@@ -48,7 +52,7 @@ class Raking:
                 return current_pos, position, change_y, initial_pos_down, monk_pos
             elif self.isDifferentMoveNumDown(monk_pos, position, move_num):
                 self.garden_matrix[monk_pos][position] = move_num
-                current_pos, position = self.rock(monk_pos, position, monk, way)
+                current_pos, position = self.rock(monk_pos, position, monk)
 
                 if self.checkGameOver(current_pos, position):
                     return -1, -1, False, -1, -1
@@ -78,14 +82,14 @@ class Raking:
         return x + 1 < self.col_val and self.garden_matrix[y][x + 1] != 0 and self.garden_matrix[y][x + 1] != move_num and self.garden_matrix[y][x + 1] != 'K' and self.garden_matrix[y][x] == 0
 
     def moveRight(self, monk_pos: int, position: int, monk: Monk, move_num: int, current_pos: int, change_x: bool,
-                  initial_pos_right: int, way: Way) -> (int, int, bool, int, int):
+                  initial_pos_right: int) -> (int, int, bool, int, int):
         while monk_pos <= self.col_val:
             if self.moveForwardRight(monk_pos, position, move_num):
                 self.garden_matrix[position][monk_pos] = move_num
                 monk_pos += 1
             elif self.isRockRight(monk_pos, position, move_num):
                 self.garden_matrix[position][monk_pos] = move_num
-                position, current_pos = self.rock(position, monk_pos, monk, way)
+                position, current_pos = self.rock(position, monk_pos, monk)
 
                 if self.checkGameOver(position, current_pos):
                     return -1, -1, False, -1, -1
@@ -98,7 +102,7 @@ class Raking:
                 return current_pos, position, change_x, initial_pos_right, monk_pos
             elif self.isDifferentMoveNumRight(monk_pos, position, move_num):
                 self.garden_matrix[position][monk_pos] = move_num
-                position, current_pos = self.rock(position, monk_pos, monk, way)
+                position, current_pos = self.rock(position, monk_pos, monk)
 
                 if self.checkGameOver(position, current_pos):
                     return -1, -1, False, -1, -1
@@ -127,14 +131,14 @@ class Raking:
         return x - 1 >= 0 and self.garden_matrix[x - 1][y] != 0 and self.garden_matrix[x - 1][y] != move_num and self.garden_matrix[x - 1][y] != 'K' and self.garden_matrix[x][y] == 0
 
     def moveUp(self, iter_pos: int, position: int, monk: Monk, move_num: int, current_pos: int, change_y: bool,
-               initial_pos_up: int, way: Way) -> (int, int, bool, int, int):
+               initial_pos_up: int) -> (int, int, bool, int, int):
         while iter_pos >= 0:
             if self.moveForwardUp(iter_pos, position, move_num):
                 self.garden_matrix[iter_pos][position] = move_num
                 iter_pos -= 1
             elif self.isRockUp(iter_pos, position, move_num):
                 self.garden_matrix[iter_pos][position] = move_num
-                current_pos, position = self.rock(iter_pos, position, monk, way)
+                current_pos, position = self.rock(iter_pos, position, monk)
 
                 if self.checkGameOver(current_pos, position):
                     return -1, -1, False, -1, -1
@@ -147,7 +151,7 @@ class Raking:
                 return current_pos, position, change_y, initial_pos_up, iter_pos
             elif self.isDifferentMoveNumUp(iter_pos, position, move_num):
                 self.garden_matrix[iter_pos][position] = move_num
-                current_pos, position = self.rock(iter_pos, position, monk, way)
+                current_pos, position = self.rock(iter_pos, position, monk)
 
                 if self.checkGameOver(current_pos, position):
                     return -1, -1, False, -1, -1
@@ -176,14 +180,14 @@ class Raking:
         return x - 1 >= 0 and self.garden_matrix[y][x - 1] != 0 and self.garden_matrix[y][x - 1] != move_num and self.garden_matrix[y][x - 1] != 'K' and self.garden_matrix[y][x] == 0
 
     def moveLeft(self, iter_pos: int, position: int, monk: Monk, move_num: int, current_pos: int, change_x: bool,
-                 initial_pos_left: int, way: Way) -> (int, int, bool, int, int):
+                 initial_pos_left: int) -> (int, int, bool, int, int):
         while iter_pos >= 0:
             if self.moveForwardLeft(iter_pos, position, move_num):
                 self.garden_matrix[position][iter_pos] = move_num
                 iter_pos -= 1
             elif self.isRockLeft(iter_pos, position, move_num):
                 self.garden_matrix[position][iter_pos] = move_num
-                position, current_pos = self.rock(position, iter_pos, monk, way)
+                position, current_pos = self.rock(position, iter_pos, monk)
 
                 if self.checkGameOver(position, current_pos):
                     return -1, -1, False, -1, -1
@@ -196,7 +200,7 @@ class Raking:
                 return current_pos, position, change_x, initial_pos_left, iter_pos
             elif self.isDifferentMoveNumLeft(iter_pos, position, move_num):
                 self.garden_matrix[position][iter_pos] = move_num
-                position, current_pos = self.rock(position, iter_pos, monk, way)
+                position, current_pos = self.rock(position, iter_pos, monk)
 
                 if self.checkGameOver(position, current_pos):
                     return -1, -1, False, -1, -1
@@ -243,7 +247,7 @@ class Raking:
 
         return "0", pos_x, pos_y
 
-    def rock(self, pos_x: int, pos_y: int, monk: Monk, way: Way) -> (int, int):
+    def rock(self, pos_x: int, pos_y: int, monk: Monk) -> (int, int):
         # change direction, turning
         monk.turn = monk.rndTurn()
         turn = int(monk.turn, 2)
@@ -259,7 +263,7 @@ class Raking:
                 direction = "01"
             else:
                 print("game over :(")
-                self.set_fitness(way)
+                self.set_fitness()
                 return -1, -1
 
         elif direction == 0b01 or direction == 0b10:
@@ -273,7 +277,7 @@ class Raking:
                 direction = "00"
             else:
                 print("game over :(")
-                self.set_fitness(way)
+                self.set_fitness()
                 return -1, -1
 
         monk.direction = direction
@@ -333,7 +337,7 @@ class Raking:
 
     def raking(self, gen_list_iterator: list, monk: Monk, initial_pos_down: int, initial_pos_up: int,
                initial_pos_right: int, initial_pos_left: int, current_pos: int, change_y: bool, change_x: bool,
-               move_num: int, way: Way):
+               move_num: int):
 
         position = int(monk.position, 2)
         check_list = True
@@ -344,10 +348,10 @@ class Raking:
                 monk_pos, change_x, change_y, position, initial_pos_down = \
                     self.checkCurrPosX(current_pos, initial_pos_down, change_x, change_y, position)
                 current_pos, position, change_y, initial_pos_down, monk_pos = \
-                    self.moveDown(monk_pos, position, monk, move_num, current_pos, change_y, initial_pos_down, way)
+                    self.moveDown(monk_pos, position, monk, move_num, current_pos, change_y, initial_pos_down)
 
                 if self.checkValuesGO(current_pos, position, change_y, initial_pos_down, monk_pos):
-                    way.game_over = True
+                    self.game_over = True
                     return
 
                 if self.isIterEnded(monk_pos, self.row_val):
@@ -364,10 +368,10 @@ class Raking:
                 iter_pos, change_x, change_y, position, initial_pos_up = \
                     self.checkCurrPosX(current_pos, initial_pos_up, change_x, change_y, position)
                 current_pos, position, change_y, initial_pos_up, iter_pos = \
-                    self.moveUp(iter_pos, position, monk, move_num, current_pos, change_y, initial_pos_up, way)
+                    self.moveUp(iter_pos, position, monk, move_num, current_pos, change_y, initial_pos_up)
 
                 if self.checkValuesGO(current_pos, position, change_y, initial_pos_up, iter_pos):
-                    way.game_over = True
+                    self.game_over = True
                     return
 
                 if self.isIterEnded(iter_pos, 0):
@@ -384,10 +388,10 @@ class Raking:
                 monk_pos, change_x, change_y, position = \
                     self.checkCurrPosY(current_pos, initial_pos_right, change_x, change_y, position)
                 current_pos, position, change_x, initial_pos_right, monk_pos = \
-                    self.moveRight(monk_pos, position, monk, move_num, current_pos, change_x, initial_pos_right, way)
+                    self.moveRight(monk_pos, position, monk, move_num, current_pos, change_x, initial_pos_right)
 
                 if self.checkValuesGO(current_pos, position, change_x, initial_pos_right, monk_pos):
-                    way.game_over = True
+                    self.game_over = True
                     return
 
                 if self.isIterEnded(monk_pos, self.col_val):
@@ -404,10 +408,10 @@ class Raking:
                 iter_pos, change_x, change_y, position = \
                     self.checkCurrPosY(current_pos, initial_pos_left, change_x, change_y, position)
                 current_pos, position, change_x, initial_pos_left, iter_pos = \
-                    self.moveLeft(iter_pos, position, monk, move_num, current_pos, change_x, initial_pos_left, way)
+                    self.moveLeft(iter_pos, position, monk, move_num, current_pos, change_x, initial_pos_left)
 
                 if self.checkValuesGO(current_pos, position, change_x, initial_pos_left, iter_pos):
-                    way.game_over = True
+                    self.game_over = True
                     return
 
                 if self.isIterEnded(iter_pos, 0):
@@ -418,7 +422,7 @@ class Raking:
                         continue
                     except StopIteration:
                         print("End of the list.")
-                        self.set_fitness(way)
+                        self.set_fitness()
                         check_list = False
 
     def printMatrix(self):
@@ -431,17 +435,28 @@ class Raking:
                     print("{}".format(elem).rjust(2), end="  ")
             print()
 
-    def set_fitness(self, way: Way):
+    def set_fitness(self):
         count_squares = 0
         for row in self.garden_matrix:
             for elem in row:
                 if elem != 0 and elem != 'K':
                     count_squares += 1
-        way.fitness = count_squares
+        self.fitness = count_squares
+
+    def calculateMaxFitness(self) -> int:
+        max = self.row_val * self.col_val
+
+        rock_counter = 0
+        for row in self.garden_matrix:
+            for elem in row:
+                if elem == 'K':
+                    rock_counter+= 1
+
+        return max - rock_counter
+
 
     def work(self):
         move_num = 1
-        way = Way(self.row_val, self.col_val)
         initial_pos_down = 0
         initial_pos_right = 0
         initial_pos_up = self.row_val - 1
@@ -450,7 +465,7 @@ class Raking:
         change_y = False
         change_x = False
 
-        gen_list_iterator = iter(way.gen_list)
+        gen_list_iterator = iter(self.way.gen_list)
         try:
             monk = next(gen_list_iterator)
         except StopIteration:
@@ -458,7 +473,11 @@ class Raking:
             return
 
         self.raking(gen_list_iterator, monk, initial_pos_down, initial_pos_up, initial_pos_right, initial_pos_left,
-                    current_pos, change_y, change_x, move_num, way)
+                    current_pos, change_y, change_x, move_num)
+
+        max_fitness = self.calculateMaxFitness()
+        if self.fitness == max_fitness:
+            self.solution = True
 
         for row in self.garden_matrix:
             for elem in row:

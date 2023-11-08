@@ -30,4 +30,19 @@ class Monk:
         side_bit = bin(side)
         return side_bit
 
+    def isDirection(self, mutation_choose: int, mutation_probability: int) -> bool:
+        return mutation_choose == 1 and random.randint(1, 100) < mutation_probability
+
+    def isPosition(self, mutation_choose: int, mutation_probability: int) -> bool:
+        return mutation_choose == 2 and random.randint(1, 100) < mutation_probability
+
+    def mutate(self, mutation_probability: int, row_size: int, col_size: int):
+
+        mutation_choose = random.randint(1, 2)
+
+        if self.isDirection(mutation_choose, mutation_probability):
+            self.direction = self.rndDirection()
+
+        if self.isPosition(mutation_choose, mutation_probability):
+            self.position = self.rndPosition(row_size, col_size)
 
