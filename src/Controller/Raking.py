@@ -19,33 +19,17 @@ class Raking:
         return pos_x == -1 and pos_y == -1
 
     def moveForwardDown(self, x: int, y: int, move_num: int) -> bool:
-        if 0 <= x + 1 < len(self.garden_matrix) and 0 <= y < len(self.garden_matrix[0]):
-            # Check if the move is valid
-            if self.garden_matrix[x + 1][y] != 'K' and (
-                    self.garden_matrix[x + 1][y] == 0 or self.garden_matrix[x + 1][y] == move_num):
-                return True
-        return False
+        return x + 1 < self.row_val and (self.garden_matrix[x][y] == 0 or self.garden_matrix[x][y] == move_num) and \
+            self.garden_matrix[x + 1][y] != 'K' and self.garden_matrix[x + 1][y] == 0
 
     def isRockDown(self, x: int, y: int, move_num: int) -> bool:
-        if 0 <= x + 1 < self.row_val and 0 <= y < len(self.garden_matrix[0]):
-            # Check if the move is valid
-            if self.garden_matrix[x + 1][y] == 'K' and (
-                    self.garden_matrix[x][y] == 0 or self.garden_matrix[x][y] == move_num):
-                return True
-        return False
+        return x + 1 < self.row_val and self.garden_matrix[x + 1][y] == 'K' and (self.garden_matrix[x][y] == 0 or self.garden_matrix[x][y] == move_num)
 
     def isZeroDown(self, x: int, y: int) -> bool:
-        if 0 <= x < len(self.garden_matrix) and 0 <= y < len(self.garden_matrix[0]):
-            return x == self.row_val - 1 and self.garden_matrix[x][y] == 0
-        return False
+        return x == self.row_val - 1 and self.garden_matrix[x][y] == 0
 
     def isDifferentMoveNumDown(self, x: int, y: int, move_num: int) -> bool:
-        if 0 <= x + 1 < self.row_val and 0 <= y < len(self.garden_matrix[0]):
-            # Check if the move is valid
-            if self.garden_matrix[x + 1][y] != 'K' and self.garden_matrix[x + 1][y] != move_num and \
-                    self.garden_matrix[x + 1][y] != 0 and self.garden_matrix[x][y] == 0:
-                return True
-        return False
+        return x + 1 < self.row_val and self.garden_matrix[x + 1][y] != 0 and self.garden_matrix[x + 1][y] != move_num and self.garden_matrix[x + 1][y] != 'K' and self.garden_matrix[x][y] == 0
 
     def moveDown(self, monk_pos: int, position: int, monk: Monk, move_num: int, current_pos: int, change_y: bool,
                  initial_pos_down: int) -> (int, int, bool, int, int):
@@ -79,36 +63,34 @@ class Raking:
                 monk_pos = self.row_val
                 return current_pos, position, change_y, initial_pos_down, monk_pos
 
-
         return current_pos, position, change_y, initial_pos_down, monk_pos
 
     def moveForwardRight(self, x: int, y: int, move_num: int) -> bool:
-        if 0 <= x + 1 < self.col_val and 0 <= y < len(self.garden_matrix):
-            # Check if the move is valid
-            if self.garden_matrix[y][x + 1] != 'K' and (
-                    self.garden_matrix[y][x + 1] == 0 or self.garden_matrix[y][x + 1] == move_num):
-                return True
-        return False
+        if 0 <= y < len(self.garden_matrix) and 0 <= x < len(self.garden_matrix[y]):
+            return x + 1 < self.col_val and (self.garden_matrix[y][x] == 0 or self.garden_matrix[y][x] == move_num) and \
+                x + 1 < len(self.garden_matrix[y]) and self.garden_matrix[y][x + 1] != 'K' and self.garden_matrix[y][
+                    x + 1] == 0
+        else:
+            return False
 
     def isRockRight(self, x: int, y: int, move_num: int) -> bool:
-        if 0 <= x + 1 < self.col_val and 0 <= y < len(self.garden_matrix):
-            # Check if the move is valid
-            if self.garden_matrix[y][x + 1] == 'K' and (
-                    self.garden_matrix[y][x] == 0 or self.garden_matrix[y][x] == move_num):
-                return True
-        return False
+        if x + 1 < self.col_val and y < len(self.garden_matrix):
+            return self.garden_matrix[y][x + 1] == 'K' and (
+                        self.garden_matrix[y][x] == 0 or self.garden_matrix[y][x] == move_num)
+        else:
+            return False
 
     def isZeroRight(self, x: int, y: int) -> bool:
-        if 0 <= x < self.col_val and 0 <= y < len(self.garden_matrix):
-            return x == self.col_val - 1 and self.garden_matrix[y][x] == 0
-        return False
+        return x == self.col_val - 1 and self.garden_matrix[y][x] == 0
 
     def isDifferentMoveNumRight(self, x: int, y: int, move_num: int) -> bool:
         if 0 <= x + 1 < self.col_val and 0 <= y < len(self.garden_matrix):
-            # Check if the move is valid
-            if self.garden_matrix[y][x + 1] != 'K' and self.garden_matrix[y][x + 1] != 0 and self.garden_matrix[y][
-                x + 1] != move_num and self.garden_matrix[y][x] == 0:
-                return True
+            return (
+                    self.garden_matrix[y][x + 1] != 0
+                    and self.garden_matrix[y][x + 1] != move_num
+                    and self.garden_matrix[y][x + 1] != 'K'
+                    and self.garden_matrix[y][x] == 0
+            )
         return False
 
     def moveRight(self, monk_pos: int, position: int, monk: Monk, move_num: int, current_pos: int, change_x: bool,
@@ -146,33 +128,17 @@ class Raking:
         return current_pos, position, change_x, initial_pos_right, monk_pos
 
     def moveForwardUp(self, x: int, y: int, move_num: int) -> bool:
-        if 0 <= x - 1 < len(self.garden_matrix) and 0 <= y < len(self.garden_matrix[0]):
-            # Check if the move is valid
-            if self.garden_matrix[x - 1][y] != 'K' and (
-                    self.garden_matrix[x - 1][y] == 0 or self.garden_matrix[x - 1][y] == move_num):
-                return True
-        return False
+        return x - 1 >= 0 and (self.garden_matrix[x][y] == 0 or self.garden_matrix[x][y] == move_num) and \
+            self.garden_matrix[x - 1][y] != 'K' and self.garden_matrix[x - 1][y] == 0
 
     def isRockUp(self, x: int, y: int, move_num: int) -> bool:
-        if 0 <= x - 1 < len(self.garden_matrix) and 0 <= y < len(self.garden_matrix[0]):
-            # Check if the move is valid
-            if self.garden_matrix[x - 1][y] == 'K' and (
-                    self.garden_matrix[x][y] == 0 or self.garden_matrix[x][y] == move_num):
-                return True
-        return False
+        return x - 1 >= 0 and self.garden_matrix[x - 1][y] == 'K' and (self.garden_matrix[x][y] == 0 or self.garden_matrix[x][y] == move_num)
 
     def isZeroUp(self, x: int, y: int) -> bool:
-        if 0 <= x < len(self.garden_matrix) and 0 <= y < len(self.garden_matrix[0]):
-            return x == 0 and self.garden_matrix[x][y] == 0
-        return False
+        return x == 0 and self.garden_matrix[x][y] == 0
 
     def isDifferentMoveNumUp(self, x: int, y: int, move_num: int) -> bool:
-        if 0 <= x - 1 < len(self.garden_matrix) and 0 <= y < len(self.garden_matrix[0]):
-            # Check if the move is valid
-            if self.garden_matrix[x - 1][y] != 0 and self.garden_matrix[x - 1][y] != move_num and \
-                    self.garden_matrix[x - 1][y] != 'K' and self.garden_matrix[x][y] == 0:
-                return True
-        return False
+        return x - 1 >= 0 and self.garden_matrix[x - 1][y] != 0 and self.garden_matrix[x - 1][y] != move_num and self.garden_matrix[x - 1][y] != 'K' and self.garden_matrix[x][y] == 0
 
     def moveUp(self, iter_pos: int, position: int, monk: Monk, move_num: int, current_pos: int, change_y: bool,
                initial_pos_up: int) -> (int, int, bool, int, int):
@@ -209,34 +175,31 @@ class Raking:
         return current_pos, position, change_y, initial_pos_up, iter_pos
 
     def moveForwardLeft(self, x: int, y: int, move_num: int) -> bool:
-        if 0 <= x - 1 < len(self.garden_matrix[0]) and 0 <= y < len(self.garden_matrix):
-            # Check if the move is valid
-            if self.garden_matrix[y][x - 1] != 'K' and (
-                    self.garden_matrix[y][x - 1] == 0 or self.garden_matrix[y][x - 1] == move_num):
-                return True
+        if 0 <= y < len(self.garden_matrix):
+            return x - 1 >= 0 and x - 1 < len(self.garden_matrix[y]) and \
+                (self.garden_matrix[y][x] == 0 or self.garden_matrix[y][x] == move_num) and \
+                x - 1 >= 0 and self.garden_matrix[y][x - 1] != 'K' and self.garden_matrix[y][x - 1] == 0
         return False
 
     def isRockLeft(self, x: int, y: int, move_num: int) -> bool:
-        if 0 <= x - 1 < len(self.garden_matrix[0]) and 0 <= y < len(self.garden_matrix):
-            # Check if the conditions are met
-            if self.garden_matrix[y][x - 1] == 'K' and (
-                    self.garden_matrix[y][x] == 0 or self.garden_matrix[y][x] == move_num):
-                return True
-        return False
+        if y < 0 or y >= len(self.garden_matrix) or x <= 0 or x >= len(self.garden_matrix[y]):
+            return False  # Invalid indices
+
+        return (
+                x - 1 >= 0
+                and self.garden_matrix[y][x - 1] == 'K'
+                and (self.garden_matrix[y][x] == 0 or self.garden_matrix[y][x] == move_num)
+        )
 
     def isZeroLeft(self, x: int, y: int) -> bool:
-        if 0 <= x < len(self.garden_matrix[0]) and 0 <= y < len(self.garden_matrix):
-            # Check if x is at the leftmost column and the value is 0
-            return x == 0 and self.garden_matrix[y][x] == 0
-        return False
+        return x == 0 and self.garden_matrix[y][x] == 0
 
     def isDifferentMoveNumLeft(self, x: int, y: int, move_num: int) -> bool:
-        if 0 <= x - 1 < len(self.garden_matrix[0]) and 0 <= y < len(self.garden_matrix):
-            # Check if the move is valid and has a different move_num
-            if self.garden_matrix[y][x - 1] != 'K' and self.garden_matrix[y][x - 1] != move_num and \
-                    self.garden_matrix[y][x] == 0:
-                return True
-        return False
+        if x - 1 >= 0 and y < len(self.garden_matrix) and x - 1 < len(self.garden_matrix[y]):
+            return self.garden_matrix[y][x - 1] != 0 and self.garden_matrix[y][x - 1] != move_num and \
+                self.garden_matrix[y][x - 1] != 'K' and self.garden_matrix[y][x] == 0
+        else:
+            return False
 
     def moveLeft(self, iter_pos: int, position: int, monk: Monk, move_num: int, current_pos: int, change_x: bool,
                  initial_pos_left: int) -> (int, int, bool, int, int):
@@ -535,11 +498,6 @@ class Raking:
         max_fitness = self.calculateMaxFitness()
         if self.fitness == max_fitness:
             self.solution = True
+            self.fitness = max_fitness
 
-        # for row in self.garden_matrix:
-        #     for elem in row:
-        #         if elem == 0:
-        #             print(".".rjust(2), end="  ")
-        #         else:
-        #             print("{}".format(elem).rjust(2), end="  ")
-        #     print()
+        # self.printMatrix()

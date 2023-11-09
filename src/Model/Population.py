@@ -11,23 +11,24 @@ from src.Model.Way import Way
 
 class Population:
 
-    def __init__(self, row_val: int, col_val: int, garden_matrix: list):
-        self.size = 40
+    def __init__(self, row_val: int, col_val: int, garden_matrix: list, population):
+        self.size = 100
         self.row_val = row_val
         self.col_val = col_val
         self.garden_matrix = garden_matrix
-        self.population = self.initializePopulation()
+        self.population = population
         self.generation_count = 0
         self.best_fitness = 0
 
     def initializePopulation(self) -> list:
-        return [Raking(self.row_val, self.col_val, self.garden_matrix, Way(self.row_val, self.col_val)) for _ in range(self.size)]
+        self.population = [Raking(self.row_val, self.col_val, self.garden_matrix, Way(self.row_val, self.col_val)) for _ in range(self.size)]
 
     def evaluatePopulation(self):
         for individual in self.population:
             individual.work()
             if individual.solution:
                 self.best_fitness = individual.fitness
+        self.getFirstBestFitness()
 
     def isGO(self, x) -> bool:
         return x.game_over
@@ -43,6 +44,14 @@ class Population:
             if self.isSolution(individual):
                 individual.printMatrix()
                 return True
+
+    def getFirstBestFitness(self) -> (int, int):
+        self.population = sorted(self.population, key=lambda individual: individual.fitness, reverse=True)
+        if len(self.population) >= 2:
+            first_best_fitness = self.population[0].fitness
+            self.best_fitness = first_best_fitness
+        else:
+            return
 
     def getFirstAndSecondBestFitness(self) -> (int, int):
         if len(self.population) >= 2:
@@ -117,12 +126,6 @@ class Population:
         # list of new population
         new_population = []
 
-        # get the best fitness and add them to new_ population
-        first_best_fitness, second_best_fitness = self.getFirstAndSecondBestFitness()
-        if first_best_fitness != -1 and second_best_fitness != -1:
-            best_individuals = [individual for individual in self.population if individual.fitness in [first_best_fitness, second_best_fitness]]
-            new_population.extend(best_individuals)
-
 
         # tournament
         tour_participants_size = 3
@@ -138,4 +141,11 @@ class Population:
         # mutation
         self.mutation(new_population)
 
-        self.population = new_population
+        # get the best fitness and add them to new_ population
+        first_best_fitness, second_best_fitness = self.getFirstAndSecondBestFitness()
+        if first_best_fitness != -1 and second_best_fitness != -1:
+            best_individuals = [individual for individual in self.population if
+                                individual.fitness in [first_best_fitness, second_best_fitness]]
+            new_population.extend(best_individuals)
+
+        return new_population
