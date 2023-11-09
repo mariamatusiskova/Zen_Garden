@@ -11,7 +11,6 @@ from src.Model.Way import Way
 
 class Population:
 
-    # size random from 30 to 100
     def __init__(self, row_val: int, col_val: int, garden_matrix: list):
         self.size = 40
         self.row_val = row_val
@@ -27,6 +26,8 @@ class Population:
     def evaluatePopulation(self):
         for individual in self.population:
             individual.work()
+            if individual.solution:
+                self.best_fitness = individual.fitness
 
     def isGO(self, x) -> bool:
         return x.game_over
@@ -40,11 +41,13 @@ class Population:
     def findSolution(self) -> bool:
         for individual in self.population:
             if self.isSolution(individual):
+                individual.printMatrix()
                 return True
 
     def getFirstAndSecondBestFitness(self) -> (int, int):
         if len(self.population) >= 2:
             first_best_fitness = self.population[0].fitness
+            self.best_fitness = first_best_fitness
             second_best_fitness = self.population[1].fitness
             return first_best_fitness, second_best_fitness
         else:
@@ -135,4 +138,4 @@ class Population:
         # mutation
         self.mutation(new_population)
 
-        return new_population
+        self.population = new_population
